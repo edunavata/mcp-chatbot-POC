@@ -1,0 +1,38 @@
+# Entornos virtuales
+venv/
+.env
+*.env
+
+# Archivos temporales de Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Logs
+*.log
+
+# Archivos de editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Compilaciones o binarios
+build/
+dist/
+*.egg-info/
+
+# Cache de pip
+pip-wheel-metadata/
+*.egg
+*.whl
+
+# Archivos de pruebas y cobertura
+htmlcov/
+.tox/
+.coverage
+.pytest_cache/
+
+# Otros
+.DS_Store
