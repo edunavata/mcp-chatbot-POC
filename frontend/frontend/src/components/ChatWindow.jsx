@@ -3,32 +3,34 @@ import axios from "axios";
 import { ChatContext } from "../context/ChatContext";
 import MessageBubble from "./MessageBubble";
 import ChatInput from "./ChatInput";
-import "../styles/ChatWindow.css"; 
+import "../styles/ChatWindow.css";
 
 function ChatWindow() {
-  const { conversations, activeConversation, setConversations } = useContext(ChatContext);
+  const { activeConversation, setConversations } = useContext(ChatContext);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState(activeConversation.messages || []);
+  const [messages, setMessages] = useState([]);
   const bottomRef = useRef(null);
 
-  // Mantener mensajes actualizados si cambia la conversación activa
+  // Sync con activeConversation
   useEffect(() => {
-    setMessages(activeConversation.messages || []);
+    if (activeConversation) {
+      setMessages(activeConversation.messages || []);
+    } else {
+      setMessages([]);
+    }
   }, [activeConversation]);
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || !activeConversation) return;
 
     const userMessage = { role: "user", content: input };
     const newMessages = [...messages, userMessage];
 
-    // Reflejar mensajes localmente primero
     setMessages(newMessages);
     setInput("");
     setLoading(true);
 
-    // Actualizar el contexto global
     setConversations(prev =>
       prev.map(c =>
         c.id === activeConversation.id ? { ...c, messages: newMessages } : c
@@ -45,7 +47,6 @@ function ChatWindow() {
       const finalMessages = [...newMessages, assistantMessage];
 
       setMessages(finalMessages);
-
       setConversations(prev =>
         prev.map(c =>
           c.id === activeConversation.id
@@ -66,13 +67,27 @@ function ChatWindow() {
 
   return (
     <div className="chat-window">
-      <div className="chat-messages">
-        {messages.map((msg, idx) => (
-          <MessageBubble key={idx} message={msg} />
-        ))}
-        <div ref={bottomRef} />
-      </div>
-      <ChatInput input={input} setInput={setInput} onSend={sendMessage} loading={loading} />
+      {!activeConversation ? (
+        <div className="chat-empty">
+          <p>No hay conversaciones activas.</p>
+          <p>Usa el botón <strong>+</strong> para crear una nueva.</p>
+        </div>
+      ) : (
+        <>
+          <div className="chat-messages">
+            {messages.map((msg, idx) => (
+              <MessageBubble key={idx} message={msg} />
+            ))}
+            <div ref={bottomRef} />
+          </div>
+          <ChatInput
+            input={input}
+            setInput={setInput}
+            onSend={sendMessage}
+            loading={loading}
+          />
+        </>
+      )}
     </div>
   );
 }

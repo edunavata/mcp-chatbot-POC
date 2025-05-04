@@ -1,14 +1,26 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
+import { loadConversations, saveConversations } from "../services/localStorageService";
 
 export const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
-  const [conversations, setConversations] = useState([
-    { id: 1, name: "Conversación 1", messages: [] },
-    { id: 2, name: "Conversación 2", messages: [] }
-  ]);
+  const defaultConversations = [
+    { id: 1, name: "Conversación 1", messages: [] }
+  ];
 
-  const [activeConversation, setActiveConversation] = useState(conversations[0]);
+  const [conversations, setConversations] = useState(() => {
+    const loaded = loadConversations();
+    return loaded.length > 0 ? loaded : defaultConversations;
+  });
+
+  const [activeConversation, setActiveConversation] = useState(() =>
+    conversations.length > 0 ? conversations[0] : null
+  );
+
+  // ⬇ Guardar en localStorage al cambiar
+  useEffect(() => {
+    saveConversations(conversations);
+  }, [conversations]);
 
   return (
     <ChatContext.Provider
