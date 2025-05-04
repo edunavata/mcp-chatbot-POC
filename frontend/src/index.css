@@ -15,3 +15,9 @@ body {
     height: 100vh;
 }
   
+.app-layout {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}

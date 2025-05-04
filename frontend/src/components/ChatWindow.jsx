@@ -5,7 +5,7 @@ import MessageBubble from "./MessageBubble";
 import ChatInput from "./ChatInput";
 import "../styles/ChatWindow.css";
 
-function ChatWindow() {
+function ChatWindow({ onToggleSidebar, sidebarVisible }) {
   const { activeConversation, setConversations } = useContext(ChatContext);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,8 +31,8 @@ function ChatWindow() {
     setInput("");
     setLoading(true);
 
-    setConversations(prev =>
-      prev.map(c =>
+    setConversations((prev) =>
+      prev.map((c) =>
         c.id === activeConversation.id ? { ...c, messages: newMessages } : c
       )
     );
@@ -40,18 +40,16 @@ function ChatWindow() {
     try {
       const res = await axios.post("http://localhost:5000/api/chat", {
         messages: newMessages,
-        model: "gpt-4"
+        model: "gpt-4",
       });
 
       const assistantMessage = { role: "assistant", content: res.data };
       const finalMessages = [...newMessages, assistantMessage];
 
       setMessages(finalMessages);
-      setConversations(prev =>
-        prev.map(c =>
-          c.id === activeConversation.id
-            ? { ...c, messages: finalMessages }
-            : c
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.id === activeConversation.id ? { ...c, messages: finalMessages } : c
         )
       );
     } catch (err) {
@@ -67,10 +65,23 @@ function ChatWindow() {
 
   return (
     <div className="chat-window">
+      <div className="chat-header">
+        <button
+          className="sidebar-toggle"
+          onClick={onToggleSidebar}
+          aria-label="Toggle sidebar"
+        >
+          {sidebarVisible ? "←" : "☰"}
+        </button>
+        <h1 className="chat-title">MCP Hub</h1>
+      </div>
+
       {!activeConversation ? (
         <div className="chat-empty">
           <p>No hay conversaciones activas.</p>
-          <p>Usa el botón <strong>+</strong> para crear una nueva.</p>
+          <p>
+            Usa el botón <strong>+</strong> para crear una nueva.
+          </p>
         </div>
       ) : (
         <>
