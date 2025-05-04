@@ -1,0 +1,19 @@
+.message-bubble {
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    margin: 0.5rem;
+    max-width: 70%;
+    white-space: pre-wrap;
+    color: white;
+  }
+  
+  .message-bubble.user {
+    align-self: flex-end;
+    background-color: var(--color-user);
+  }
+  
+  .message-bubble.assistant {
+    align-self: flex-start;
+    background-color: var(--color-assistant);
+  }
+  

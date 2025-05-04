@@ -1,29 +1,18 @@
 import { useContext } from "react";
 import { ChatContext } from "../context/ChatContext";
+import "../styles/ConversationList.css";
 
 function ConversationList() {
   const { conversations, setActiveConversation, activeConversation } = useContext(ChatContext);
 
   return (
-    <div style={{
-      width: "250px",
-      borderRight: "1px solid var(--color-border)",
-      backgroundColor: "#1a1a1a",
-      padding: "1rem",
-      overflowY: "auto"
-    }}>
-      <h3 style={{ marginBottom: "1rem" }}>Conversaciones</h3>
+    <div className="conversation-list">
+      <h3>Conversaciones</h3>
       {conversations.map(conv => (
         <div
           key={conv.id}
           onClick={() => setActiveConversation(conv)}
-          style={{
-            padding: "0.5rem",
-            marginBottom: "0.5rem",
-            borderRadius: "6px",
-            backgroundColor: activeConversation.id === conv.id ? "#2b2b2b" : "transparent",
-            cursor: "pointer"
-          }}
+          className={`conversation-item ${activeConversation.id === conv.id ? "active" : ""}`}
         >
           {conv.name}
         </div>
