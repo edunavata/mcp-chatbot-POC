@@ -1,0 +1,33 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/app/.env
+    volumes:
+      - ./backend:/app
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    networks:
+      - chatbot-net
+
+  frontend:
+    build:
+      context: ./frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - chatbot-net
+
+networks:
+  chatbot-net:
+    driver: bridge
