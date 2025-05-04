@@ -41,6 +41,7 @@
   align-items: center;
   transition: background-color 0.2s;
   color: var(--color-text);
+  overflow: hidden;
 }
 
 .conversation-item:hover {
@@ -100,4 +101,13 @@
 .edit-selector{
   display: flex;
   flex-direction: column;
+}
+
+.conversation-actions button svg {
+  stroke: #888;
+  transition: stroke 0.2s;
+}
+
+.conversation-actions button:hover svg {
+  stroke: white;
 }
