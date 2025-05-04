@@ -67,6 +67,12 @@
   border-color: var(--color-accent);
 }
 
+
+.conversation-actions {
+  display: flex;
+  align-items: center;
+}
+
 .conversation-actions button {
   background: none;
   border: none;
@@ -79,4 +85,19 @@
 
 .conversation-actions button:hover {
   color: #fff;
+}
+
+.conversation-title {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  margin-right: 0.5rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.edit-selector{
+  display: flex;
+  flex-direction: column;
 }

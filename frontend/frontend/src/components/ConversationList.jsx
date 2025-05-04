@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { ChatContext } from "../context/ChatContext";
 import "../styles/ConversationList.css";
 
-let nextId = Date.now(); // ID simple
+let nextId = Date.now();
 
 function ConversationList() {
   const {
@@ -11,6 +11,9 @@ function ConversationList() {
     activeConversation,
     setActiveConversation,
   } = useContext(ChatContext);
+
+  const [editingId, setEditingId] = useState(null);
+  const [tempName, setTempName] = useState("");
 
   const handleAddConversation = () => {
     const newConv = {
@@ -26,7 +29,6 @@ function ConversationList() {
   const handleDelete = (id) => {
     const filtered = conversations.filter((c) => c.id !== id);
     setConversations(filtered);
-
     if (activeConversation?.id === id && filtered.length) {
       setActiveConversation(filtered[0]);
     } else if (!filtered.length) {
@@ -41,6 +43,22 @@ function ConversationList() {
     setConversations(updated);
   };
 
+  const startEditing = (id, currentName) => {
+    setEditingId(id);
+    setTempName(currentName);
+  };
+
+  const cancelEditing = () => {
+    setEditingId(null);
+    setTempName("");
+  };
+
+  const confirmEditing = (id) => {
+    handleTitleChange(id, tempName.trim() || "Sin título");
+    setEditingId(null);
+    setTempName("");
+  };
+
   return (
     <div className="conversation-list">
       <div className="conversation-header">
@@ -50,33 +68,77 @@ function ConversationList() {
         </button>
       </div>
 
-      {conversations.map((conv) => (
-        <div
-          key={conv.id}
-          className={`conversation-item ${
-            activeConversation?.id === conv.id ? "active" : ""
-          }`}
-          onClick={() => setActiveConversation(conv)}
-        >
-          <input
-            className="conversation-title-input"
-            value={conv.name}
-            onClick={(e) => e.stopPropagation()}
-            onChange={(e) => handleTitleChange(conv.id, e.target.value)}
-          />
-          <div className="conversation-actions">
-            <button
-              title="Eliminar"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(conv.id);
-              }}
-            >
-              🗑️
-            </button>
+      {conversations.map((conv) => {
+        const isEditing = editingId === conv.id;
+
+        return (
+          <div
+            key={conv.id}
+            className={`conversation-item ${
+              activeConversation?.id === conv.id ? "active" : ""
+            }`}
+            onClick={() => !isEditing && setActiveConversation(conv)}
+          >
+            {isEditing ? (
+              <input
+                className="conversation-title-input"
+                value={tempName}
+                onClick={(e) => e.stopPropagation()}
+                onChange={(e) => setTempName(e.target.value)}
+                autoFocus
+              />
+            ) : (
+              <div className="conversation-title">{conv.name}</div>
+            )}
+
+            <div className="conversation-actions">
+              {isEditing ? (
+                <>
+                  <button
+                    title="Confirmar"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      confirmEditing(conv.id);
+                    }}
+                  >
+                    ✅
+                  </button>
+                  <button
+                    title="Cancelar"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      cancelEditing();
+                    }}
+                  >
+                    ❌
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    title="Editar"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startEditing(conv.id, conv.name);
+                    }}
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    title="Eliminar"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(conv.id);
+                    }}
+                  >
+                    🗑️
+                  </button>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
