@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { ChatContext } from "../context/ChatContext";
 import "../styles/ConversationList.css";
+import { Trash2, Pencil, Check, X } from "lucide-react"; // Iconos de Lucide
 
 let nextId = Date.now();
 
@@ -101,7 +102,7 @@ function ConversationList() {
                       confirmEditing(conv.id);
                     }}
                   >
-                    ✅
+                    <Check size={16} />
                   </button>
                   <button
                     title="Cancelar"
@@ -110,7 +111,7 @@ function ConversationList() {
                       cancelEditing();
                     }}
                   >
-                    ❌
+                    <X size={16} />
                   </button>
                 </>
               ) : (
@@ -122,7 +123,7 @@ function ConversationList() {
                       startEditing(conv.id, conv.name);
                     }}
                   >
-                    ✏️
+                    <Pencil size={16} />
                   </button>
                   <button
                     title="Eliminar"
@@ -131,7 +132,7 @@ function ConversationList() {
                       handleDelete(conv.id);
                     }}
                   >
-                    🗑️
+                    <Trash2 size={16} />
                   </button>
                 </>
               )}
