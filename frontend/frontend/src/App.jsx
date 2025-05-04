@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
-
+import ConversationList from "./components/ConversationList";
+import ChatWindow from "./components/ChatWindow";
+import { ChatProvider } from "./context/ChatContext";
 function App() {
   const [messages, setMessages] = useState([
-    { role: "system", content: "Eres un asistente útil." }
+
   ]);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
@@ -17,55 +19,44 @@ function App() {
     scrollToBottom();
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
+  const [loading, setLoading] = useState(false);
 
-    const newMessages = [...messages, { role: "user", content: input }];
-    setMessages(newMessages);
+const sendMessage = async () => {
+  if (!input.trim()) return;
 
-    try {
-      const res = await axios.post("http://localhost:5000/api/chat", {
-        messages: newMessages,
-        model: "gpt-4"
-      });
-      console.log(res.data);
-      const message = res.data
-      
-      setMessages([...newMessages, { role: "assistant", content: message }]);
-    } catch (err) {
-      console.error("Error en el backend:", err);
-    }
+  const newMessages = [...messages, { role: "user", content: input }];
+  setMessages(newMessages);
+  setInput("");
+  setLoading(true);
 
-    setInput("");
+  try {
+    const res = await axios.post("http://localhost:5000/api/chat", {
+      messages: newMessages,
+      model: "gpt-4"
+    });
+
+    const message = res.data;
+    setMessages([...newMessages, { role: "assistant", content: message }]);
+  } catch (err) {
+    console.error("Error en el backend:", err);
+    setMessages([
+      ...newMessages,
+      { role: "assistant", content: "Lo siento, ocurrió un error." }
+    ]);
+  }
+
+  setLoading(false);
   };
 
   return (
-    <div className="chat-container">
-      <div className="chat-box">
-        {messages
-          .map((msg, i) => (
-            <div
-              key={i}
-              className={`chat-bubble ${msg.role === "user" ? "user" : "assistant"}`}
-            >
-              {msg.content}
-            </div>
-          ))}
-        <div ref={messagesEndRef} />
+    <ChatProvider>
+      <div style={{ display: "flex", height: "100vh" }}>
+        <ConversationList />
+        <ChatWindow />
       </div>
-
-      <div className="chat-input">
-        <input
-          type="text"
-          value={input}
-          placeholder="Escribe tu mensaje..."
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-        />
-        <button onClick={sendMessage}>Enviar</button>
-      </div>
-    </div>
+    </ChatProvider>
   );
 }
+
 
 export default App;

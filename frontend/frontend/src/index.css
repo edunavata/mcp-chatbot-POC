@@ -1,0 +1,17 @@
+:root {
+    --bg-main: #121212;
+    --bg-chat: #1e1e1e;
+    --color-user: #0e927d;
+    --color-assistant: #333;
+    --color-text: #e5e5e5;
+    --color-border: #2a2a2a;
+    --color-accent: #10a37f;
+  }
+  
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--bg-main);
+    height: 100vh;
+}
+  
