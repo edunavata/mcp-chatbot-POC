@@ -15,4 +15,5 @@ def chat():
     except ValidationError as ve:
         return jsonify({"error": ve.errors()}), 400
     except Exception as e:
+        print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500
