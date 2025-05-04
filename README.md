@@ -18,6 +18,9 @@ chatbot/
 │   ├── src/               # Código fuente de React
 │   ├── package.json       # Dependencias JS
 │   └── vite.config.js     # Configuración de Vite
+├── docker-compose.yml     # Orquestación de servicios
+├── Dockerfile.backend     # Imagen Docker para Flask
+├── Dockerfile.frontend    # Imagen Docker para React
 └── README.md              # Este archivo
 ```
 
@@ -34,16 +37,7 @@ cd chatbot
 
 ---
 
-### 2. Backend (Flask)
-
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate      # En Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-#### Configuración del entorno
+### 2. Configura el entorno
 
 Crea un archivo `.env` dentro de `backend/app` siguiendo el formato de `.env.demo`. Asegúrate de incluir tu clave de API de OpenAI:
 
@@ -52,32 +46,47 @@ Crea un archivo `.env` dentro de `backend/app` siguiendo el formato de `.env.dem
 OPENAI_API_KEY=tu_token_aquí
 ```
 
-#### Ejecutar el servidor Flask
+---
+
+### 3. Ejecución con Docker Compose (recomendado)
 
 ```bash
-python run.py
+docker compose up --build
 ```
 
-Esto levantará el backend en `http://localhost:5000`.
+Esto levantará:
+
+* El backend Flask en `http://localhost:5000`
+* El frontend React en `http://localhost:3000`
 
 ---
 
-### 3. Frontend (React + Vite)
+### 4. Alternativa: Ejecución manual
+
+#### Backend (Flask)
 
 ```bash
-cd ../frontend
+cd backend
+python -m venv venv
+source venv/bin/activate      # En Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python run.py
+```
+
+#### Frontend (React + Vite)
+
+```bash
+cd frontend
 npm install
 npm run dev
 ```
-
-Esto iniciará el servidor de desarrollo en `http://localhost:5173`.
 
 ---
 
 ## 🌐 Acceso a la App
 
 * Backend: [http://localhost:5000](http://localhost:5000)
-* Frontend: [http://localhost:5173](http://localhost:5173)
+* Frontend: [http://localhost:3000](http://localhost:3000) (Docker) o [http://localhost:5173](http://localhost:5173) (manual)
 
 ---
 
@@ -86,6 +95,7 @@ Esto iniciará el servidor de desarrollo en `http://localhost:5173`.
 * **Backend**: Python, Flask, dotenv
 * **Frontend**: React, Vite, JavaScript
 * **API**: OpenAI API
+* **Contenedores**: Docker, Docker Compose
 
 ---
 
@@ -94,3 +104,7 @@ Esto iniciará el servidor de desarrollo en `http://localhost:5173`.
 Pull requests y sugerencias son bienvenidas. ¡Gracias por mejorar este proyecto!
 
 ---
+
+## 📄 Licencia
+
+Este proyecto está licenciado bajo los términos que tú decidas incluir.
