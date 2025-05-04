@@ -31,7 +31,20 @@ def generate_task_description(messages: list, model=TASK_DESCRIPTION_MODEL) -> s
     return response.choices[0].message.content.strip()
 
 
-async def _run_agent_with_mcp(messages, model=FULL_EXECUTION_MODEL) -> str:
+from contextlib import AsyncExitStack
+
+
+async def _run_agent_with_mcp(
+    messages, mcp_server_configs: list, model=FULL_EXECUTION_MODEL
+) -> str:
+    """
+    Runs an agent using the given list of MCP server configurations.
+
+    :param messages: List of message dicts with role and content.
+    :param mcp_server_configs: List of MCP server parameter dicts.
+    :param model: Model name to use in the agent.
+    :return: Final output from the agent.
+    """
     user_messages = [
         getattr(m, "content", None) or m.get("content")
         for m in messages
@@ -39,22 +52,23 @@ async def _run_agent_with_mcp(messages, model=FULL_EXECUTION_MODEL) -> str:
     ]
     full_prompt = "\n".join(user_messages)
 
-    async with MCPServerStdio(
-        params={
-            "command": "npx",
-            "args": [
-                "-y",
-                "@modelcontextprotocol/server-filesystem",
-                "/home/edu/code/",
-            ],
-        }
-    ) as server:
-        tools = await server.list_tools()
+    # Create all MCP server instances in a shared async context
+    async with AsyncExitStack() as stack:
+        mcp_servers = []
+        for config in mcp_server_configs:
+            server = await stack.enter_async_context(MCPServerStdio(params=config))
+            mcp_servers.append(server)
+
+        tools = await asyncio.gather(
+            *(s.list_tools() for s in mcp_servers)
+        )  # opcional: verifica herramientas
+
         agent = Agent(
             name="Assistant",
             instructions="Use the tools to achieve the task",
-            mcp_servers=[server],
+            mcp_servers=mcp_servers,
         )
+
         print("Tarea:", full_prompt)
         result = await Runner.run(starting_agent=agent, input=full_prompt)
         return result.final_output
@@ -65,8 +79,22 @@ def get_chat_completion(messages, model=FULL_EXECUTION_MODEL):
         print("→ Detected as TAREA")
         task_description = generate_task_description(messages)
         return asyncio.run(
-            _run_agent_with_mcp([{"role": "user", "content": task_description}], model)
+            _run_agent_with_mcp(
+                messages=[{"role": "user", "content": task_description}],
+                mcp_server_configs=[
+                    {
+                        "command": "npx",
+                        "args": [
+                            "-y",
+                            "@modelcontextprotocol/server-filesystem",
+                            "/home/edu/code/chatbot",
+                        ],
+                    }
+                ],
+                model=model,
+            )
         )
+
     else:
         print("→ Detected as MENSAJE normal")
         full_prompt = [{"role": m.role, "content": m.content} for m in messages]
