@@ -10,9 +10,9 @@ function ChatWindow({ onToggleSidebar, sidebarVisible }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]);
+  const [model, setModel] = useState(""); // "" (OpenAI por defecto) o "gemini"
   const bottomRef = useRef(null);
 
-  // Sync con activeConversation
   useEffect(() => {
     if (activeConversation) {
       setMessages(activeConversation.messages || []);
@@ -38,12 +38,16 @@ function ChatWindow({ onToggleSidebar, sidebarVisible }) {
     );
 
     try {
-      const res = await axios.post(import.meta.env.VITE_API_URL, {
+      const url = `${import.meta.env.VITE_API_URL}/${model || ""}`; // Añade "/gemini" si model === "gemini"
+      const res = await axios.post(url, {
         messages: newMessages,
         model: "gpt-4",
       });
-
-      const assistantMessage = { role: "assistant", content: res.data };
+      console.log("Response:", res.data);
+      const assistantMessage = {
+        role: "assistant",
+        content: res.data.response ? res.data.response : res.data,
+      };
       const finalMessages = [...newMessages, assistantMessage];
 
       setMessages(finalMessages);
@@ -74,6 +78,14 @@ function ChatWindow({ onToggleSidebar, sidebarVisible }) {
           {sidebarVisible ? "←" : "☰"}
         </button>
         <h1 className="chat-title">MCP Hub</h1>
+        <select
+          value={model}
+          onChange={(e) => setModel(e.target.value)}
+          className="model-selector"
+        >
+          <option value="openai">OpenAI</option>
+          <option value="gemini">Gemini</option>
+        </select>
       </div>
 
       {!activeConversation ? (
